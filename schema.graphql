@@ -1,0 +1,52 @@
+# AVAX NFT Marketplace Aggregator
+
+type NFT @entity {
+    " { ERC721 Address - tokenId } "
+    id: ID!
+
+    " ERC721 contract address "
+    contract: String!
+
+    " ERC721 tokenId "
+    tokenId: Int!
+
+    " owner of the NFT "
+    owner: String!
+
+    " Is this NFT listed currently? "
+    isListed: Boolean!
+
+    " the value this NFT is listed for "
+    listingPriceUSD: BigDecimal
+
+    " last sale price of this NFT "
+    lastSalePriceUSD: BigDecimal
+
+
+    ### Events ###
+
+    transfers
+}
+
+# TODO: make an ERC721 level entity
+
+type Transfer @entity {
+
+}
+
+type Token @entity {
+    " {Address of the token} "
+    id: ID!
+
+    " name of the token "
+    name: String!
+
+    " symbol of the token "
+    symbol: String!
+
+    " decimals of the token "
+    decimals: Int!
+
+    " price of the token "
+    price: BigDecimal!
+}
