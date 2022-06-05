@@ -1,19 +1,19 @@
 {
-    "name": "AVAX NFT Aggregator",
-    "license": "MIT",
-    "version": "1.0.0",
-    "repository": "https://github.com/dmelotik/avax-nft-subgraph",
-    "scripts": {
-      "format": "npx prettier --write .",
-      "codegen": "graph codegen",
-      "build": "graph build",
-      "deploy": "graph deploy [github name]/avax-nft-aggregator ./subgraph.yaml --node https://api.thegraph.com/deploy/"
-    },
-    "dependencies": {
-        "@graphprotocol/graph-ts": "^0.27.0"
-      },
-      "devDependencies": {
-        "@graphprotocol/graph-cli": "^0.30.1",
-        "prettier": "^2.6.0"
-      }
+  "name": "subgraph",
+  "license": "MIT",
+  "version": "1.0.0",
+  "repository": "https://github.com/dmelotik/avax-nft-subgraph",
+  "scripts": {
+    "format": "npx prettier --write .",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy dmelotik/avax-nft-aggregator ./subgraph.yaml --node https://api.thegraph.com/deploy/"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-ts": "^0.27.0"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.30.1",
+    "prettier": "^2.6.0"
   }
+}

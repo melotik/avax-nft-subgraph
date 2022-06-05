@@ -10,8 +10,7 @@
   - no public repos
 - [YetiSwap](https://www.yetiswap.app/)
   - https://snowtrace.io/address/0x14390f57ccfdb45f969381e7e107acf062d3a592
-- [Joepegs](https://joepegs.com/home)
-  - 
+- ## [Joepegs](https://joepegs.com/home)
 
 ## design
 
@@ -24,7 +23,18 @@ focuses on the following:
 
 ### Schema
 
+## file structure
 
+## how to deploy - todo
+
+```
+yarn
+yarn run codegen
+yarn run build
+yarn run deploy
+```
+
+### how to add more markets
 
 ### about me
 

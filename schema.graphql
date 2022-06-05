@@ -1,157 +1,167 @@
 # AVAX NFT Marketplace Aggregator
 
 type ERC721 @entity {
-    " {smart contract address} "
-    id: ID!
+  " {smart contract address} "
+  id: ID!
 
-    " symbol for the ERC721 token "
-    symbol: String!
+  " symbol for the ERC721 token "
+  symbol: String!
 
-    " name of the ERC721 token "
-    name: String!
+  " name of the ERC721 token "
+  name: String!
 
-    " total supply of NFTs "
-    totalSupply: BigInt!
+  " total supply of NFTs "
+  totalSupply: BigInt!
 
-    " Unique owners of the NFT "
-    uniqueOwners: BigInt!
+  " Unique owners of the NFT "
+  uniqueOwners: BigInt!
 
-    " current floor price of NFT "
-    floorPriceUSD: BigDecimal!
+  " current floor price of NFT "
+  floorPriceUSD: BigDecimal!
 
-    " volume traded in USD "
-    volumeUSD: BigDecimal!
+  " volume traded in USD "
+  volumeUSD: BigDecimal!
 
-    " the block number this ERC721 was deployed at "
-    blockNumber: BigInt!
+  " number of sales "
+  saleCount: BigInt!
 
-    ### Events ###
+  " the block number this ERC721 was deployed at "
+  blockNumber: BigInt!
 
-    " all transfer events of any NFT in this contract "
-    transfers: [Transfer!]! @derivedFrom(field: "contract")
+  ### Events ###
+
+  " historical listings of NFTs "
+  listings: [Listing!]! @derivedFrom(field: "contract")
+
+  " all transfer events of any NFT in this contract "
+  transfers: [Transfer!]! @derivedFrom(field: "contract")
 }
 
 type NFT @entity {
-    " { ERC721 Address - tokenId } "
-    id: ID!
+  " { ERC721 Address - tokenId } "
+  id: ID!
 
-    " ERC721 contract address "
-    contract: String!
+  " ERC721 contract address "
+  contract: String!
 
-    " ERC721 tokenId "
-    tokenId: Int!
+  " ERC721 tokenId "
+  tokenId: Int!
 
-    " owner of the NFT "
-    owner: String!
+  " owner of the NFT "
+  owner: String!
 
-    " Is this NFT listed currently? "
-    isListed: Boolean!
+  " Is this NFT listed currently? "
+  isListed: Boolean!
 
-    " the value this NFT is listed for "
-    listingPriceUSD: BigDecimal
+  " the value this NFT is listed for "
+  listingPriceUSD: BigDecimal
 
-    " last sale price of this NFT "
-    lastSalePriceUSD: BigDecimal
+  " last sale price of this NFT "
+  lastSalePriceUSD: BigDecimal
 
-    " the block number this NFT was Minted at "
-    blockNumber: BigInt!
+  " number of transfers of this NFT "
+  transferCount: BigInt!
 
-    ### Events ###
+  " the block number this NFT was Minted at "
+  blockNumber: BigInt!
 
-    " all transfer events of this NFT "
-    transfers: [Transfer!]! @derivedFrom(field: "nftId")
+  ### Events ###
+
+  " all transfer events of this NFT "
+  transfers: [Transfer!]! @derivedFrom(field: "nftId")
 }
 
 type Transfer @entity {
-    " { transaction hash }-{ logIndex } "
-    id: ID!
+  " { transaction hash }-{ logIndex } "
+  id: ID!
 
-    " transaction hash of this transfer event "
-    hash: String!
+  " transaction hash of this transfer event "
+  hash: String!
 
-    " event log index of this transfer "
-    logIndex: Int!
+  " event log index of this transfer "
+  logIndex: Int!
 
-    " erc721 contract this transfer belongs to "
-    contract: ERC721!
+  " erc721 contract this transfer belongs to "
+  contract: ERC721!
 
-    " the receiving address of this transfer "
-    to: String!
+  " the receiving address of this transfer "
+  to: String!
 
-    " the sending address of this transfer "
-    from: String!
+  " the sending address of this transfer "
+  from: String!
 
-    " token being traded for the NFT "
-    token: Token!
+  " token being traded for the NFT "
+  token: Token!
 
-    " amount of tokens traded for the NFT in native amount "
-    amount: BigInt!
+  " amount of tokens traded for the NFT in native amount "
+  amount: BigInt!
 
-    " amouunt of tokens traded for the NFT in USD "
-    amountUSD: BigDecimal!
+  " amouunt of tokens traded for the NFT in USD "
+  amountUSD: BigDecimal!
 
-    " the tokenId of the NFT being transferred "
-    tokenId: Int!
+  " the tokenId of the NFT being transferred "
+  tokenId: Int!
 
-    " the id of the NFT per our schema "
-    nftId: NFT!
+  " the id of the NFT per our schema "
+  nftId: NFT!
 
-    " block number of the transfer "
-    blockNumber: BigInt!
+  " block number of the transfer "
+  blockNumber: BigInt!
 
-    " timestamp of the transfer "
-    timestamp: BigInt!
+  " timestamp of the transfer "
+  timestamp: BigInt!
 }
 
 type Token @entity {
-    " {Address of the token} "
-    id: ID!
+  " {Address of the token} "
+  id: ID!
 
-    " name of the token "
-    name: String!
+  " name of the token "
+  name: String!
 
-    " symbol of the token "
-    symbol: String!
+  " symbol of the token "
+  symbol: String!
 
-    " decimals of the token "
-    decimals: Int!
+  " decimals of the token "
+  decimals: Int!
 
-    " price of the token in USD"
-    price: BigDecimal!
+  " price of the token in USD"
+  priceUSD: BigDecimal!
 
-    " last block number update "
-    blockNumber: BigInt!
+  " last block number update "
+  blockNumber: BigInt!
 }
 
 ####################
 ### Helper Types ###
 ####################
 
+# YetiSwap-specific
 type Listing @entity {
-    " sale index of the listing "
-    id: ID!
+  " sale index of the listing "
+  id: ID!
 
-    " is the token currently listed "
-    isListed: Boolean!
+  " is the token currently listed "
+  isListed: Boolean!
 
-    " seller of the NFT "
-    seller: String!
+  " seller of the NFT "
+  seller: String!
 
-    " contract of NFT listed "
-    ERC721: ERC721!
+  " contract of NFT listed "
+  contract: ERC721!
 
-    " NFT identifier of the NFT listed (ie, contract + tokenId) "
-    nftId: NFT!
+  " NFT identifier of the NFT listed (ie, contract + tokenId) "
+  nftId: NFT!
 
-    " token being listed for "
-    token: Token!
+  " token being listed for "
+  token: Token!
 
-    " amount of the token being listed for "
-    amount: BigInt!
+  " amount of the token being listed for "
+  amount: BigInt!
 
-    " block number of the listing "
-    blockNumber: BigInt!
+  " block number of the listing "
+  blockNumber: BigInt!
 
-    " timestamp of the listing "
-    timestamp: BigInt!
+  " timestamp of the listing "
+  timestamp: BigInt!
 }
