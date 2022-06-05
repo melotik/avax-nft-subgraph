@@ -9,6 +9,7 @@ export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const AVAX_NAME = "Avalanche";
 export const AVAX_SYMBOL = "AVAX";
+export const AVAX_DECIMALS = 18;
 
 /////////////////
 //// Numbers ////
@@ -21,9 +22,9 @@ export const BIGINT_ZERO = BigInt.fromI32(0);
 export const BIGINT_ONE = BigInt.fromI32(1);
 export const BIGINT_TEN = BigInt.fromI32(10);
 
-export const BIGDECIMAL_ZERO = BigDecimal.fromBigInt(BIGINT_ZERO);
-export const BIGDECIMAL_ONE = BigDecimal.fromBigInt(BIGINT_ONE);
-export const BIGDECIMAL_TEN = BigDecimal.fromBigInt(BIGINT_TEN);
+export const BIGDECIMAL_ZERO = new BigDecimal(BIGINT_ZERO);
+export const BIGDECIMAL_ONE = new BigDecimal(BIGINT_ONE);
+export const BIGDECIMAL_TEN = new BigDecimal(BIGINT_TEN);
 
 ////////////////////////
 //// Util Functions ////

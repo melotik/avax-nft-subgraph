@@ -10,8 +10,11 @@ import {
 import { ERC721 as ERC721Contract } from "../generated/YetiSwapNFTMarketplace/ERC721";
 import { ERC20 } from "../generated/YetiSwapNFTMarketplace/ERC20";
 import { ERC721, Listing, NFT, Token, Transfer } from "../generated/schema";
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import {
+  AVAX_DECIMALS,
+  AVAX_NAME,
+  AVAX_SYMBOL,
   BIGDECIMAL_ZERO,
   BIGINT_ONE,
   BIGINT_ZERO,
@@ -30,15 +33,15 @@ export function handleTokenOnSale(event: TokenOnSale): void {
   listing.isListed = true;
   listing.seller = event.params.seller.toHexString();
   listing.contract = event.params.nftContract.toHexString();
-  listing.tokenId = event.params.nftId;
-  listing.nftId = listing.contract + "-" + listing.tokenId;
+  listing.tokenId = event.params.nftId.toI32();
+  listing.nftId = listing.contract + "-" + listing.tokenId.toString();
   listing.token = event.params.saleToken.toHexString();
   listing.amount = event.params.price;
   listing.blockNumber = event.block.number;
   listing.timestamp = event.block.timestamp;
 
   // update asset price
-  let token = Token.load(listing.token);
+  let token = Token.load(listing.token)!;
   let assetPrice = getAssetPrice(token, event.block.number);
   listing.amountUSD = listing.amount
     .toBigDecimal()
@@ -58,28 +61,47 @@ export function handleTokenOnSale(event: TokenOnSale): void {
 
   // update NFT floor price
   let erc721 = getOrCreateERC721(listing.contract, event.block.number);
-  erc721.floorPriceUSD = calculateFloorPriceUSD(erc721._listings, event.block.number);
+  erc721.floorPriceUSD = calculateFloorPriceUSD(
+    erc721._listings,
+    event.block.number
+  );
   erc721.save();
 }
 
 export function handleTokenRemovedFromSale(event: TokenRemovedFromSale): void {
   let listing = Listing.load(event.params.saleIndex.toString());
+  if (!listing) {
+    log.warning("[handleTokenRemovedFromSale] listing not found: {}", [event.params.saleIndex.toString()]);
+    return;
+}
   listing.isListed = false;
   listing.save();
 
   // update NFT
-  let nft = getOrCreateNFT(listing.contract, listing.nftId, event.block.number, false);
+  let nft = getOrCreateNFT(
+    listing.contract,
+    listing.nftId,
+    event.block.number,
+    false
+  );
   nft.listingPriceUSD = BIGDECIMAL_ZERO;
   nft.save();
 
   // check if new floor price needs to be calculated
   let erc721 = getOrCreateERC721(listing.contract, event.block.number);
-  erc721.floorPriceUSD = calculateFloorPriceUSD(erc721._listings, event.block.number);
+  erc721.floorPriceUSD = calculateFloorPriceUSD(
+    erc721._listings,
+    event.block.number
+  );
   erc721.save();
 }
 
 export function handleTokenSold(event: TokenSold): void {
   let listing = Listing.load(event.params.saleIndex.toString());
+  if (!listing) {
+    log.warning("[handleTokenSold] Listing not found: {}", [event.params.saleIndex.toString()])  
+    return;
+  }
   listing.isListed = false;
   listing.save();
 
@@ -89,7 +111,7 @@ export function handleTokenSold(event: TokenSold): void {
   let transfer = new Transfer(id);
 
   transfer.hash = event.transaction.hash.toHexString();
-  transfer.logIndex = event.logIndex;
+  transfer.logIndex = event.logIndex.toI32();
   transfer.contract = listing.contract;
   transfer.to = event.params.buyer.toHexString();
   transfer.from = listing.seller;
@@ -101,7 +123,7 @@ export function handleTokenSold(event: TokenSold): void {
   transfer.timestamp = event.block.timestamp;
 
   // recalculate listing price
-  let token = Token.load(listing.token);
+  let token = Token.load(listing.token)!;
   let assetPrice = getAssetPrice(token, event.block.number);
   transfer.amountUSD = listing.amount
     .toBigDecimal()
@@ -109,8 +131,11 @@ export function handleTokenSold(event: TokenSold): void {
     .times(assetPrice);
 
   // update floorPrice
-    let erc721 = getOrCreateERC721(listing.contract, event.block.number);
-    erc721.floorPriceUSD = calculateFloorPriceUSD(erc721._listings, event.block.number);
+  let erc721 = getOrCreateERC721(listing.contract, event.block.number);
+  erc721.floorPriceUSD = calculateFloorPriceUSD(
+    erc721._listings,
+    event.block.number
+  );
 
   // update other erc721 fields
   erc721.saleCount = erc721.saleCount.plus(BIGINT_ONE);
@@ -118,12 +143,16 @@ export function handleTokenSold(event: TokenSold): void {
   erc721.save();
 
   // update NFT fields
-  let nft = getOrCreateNFT(listing.contract, listing.nftId, event.block.number, false);
-    nft.owner = event.params.buyer.toHexString();
-    nft.listingPriceUSD = BIGDECIMAL_ZERO;
-    nft.lastSalePriceUSD = transfer.amountUSD;
-    nft.save();
-
+  let nft = getOrCreateNFT(
+    listing.contract,
+    listing.nftId,
+    event.block.number,
+    false
+  );
+  nft.owner = event.params.buyer.toHexString();
+  nft.listingPriceUSD = BIGDECIMAL_ZERO;
+  nft.lastSalePriceUSD = transfer.amountUSD;
+  nft.save();
 }
 
 export function handleNewCollectionAdded(event: NewCollectionAdded): void {
@@ -141,19 +170,26 @@ export function handleNewTokenAdded(event: NewTokenAdded): void {
   if (!token) {
     token = new Token(event.params.tokenContract.toHexString());
 
-    // load ERC20 for data points
-    let erc20Contract = ERC20.bind(event.params.tokenContract);
+    if (token.id == ZERO_ADDRESS) {
+      token.name = AVAX_NAME;
+      token.symbol = AVAX_SYMBOL;
+      token.decimals = AVAX_DECIMALS;
+    } else {
+      // load ERC20 for data points
+      let erc20Contract = ERC20.bind(event.params.tokenContract);
 
-    let tryName = erc20Contract.try_name();
-    let trySymbol = erc20Contract.try_symbol();
-    let tryDecimals = erc20Contract.try_decimals();
+      let tryName = erc20Contract.try_name();
+      let trySymbol = erc20Contract.try_symbol();
+      let tryDecimals = erc20Contract.try_decimals();
 
-    token.name = tryName.reverted ? "UNKNOWN" : tryName.value;
-    token.symbol = trySymbol.reverted ? "UNKNOWN" : trySymbol.value;
-    token.decimals = tryDecimals.reverted ? -1 : tryDecimals.value;
+      token.name = tryName.reverted ? "UNKNOWN" : tryName.value;
+      token.symbol = trySymbol.reverted ? "UNKNOWN" : trySymbol.value;
+      token.decimals = tryDecimals.reverted ? -1 : tryDecimals.value;
+    }
 
     token.priceUSD = getAssetPrice(token, event.block.number);
     token.blockNumber = event.block.number;
+    token.save();
   }
 }
 
@@ -206,12 +242,12 @@ function getOrCreateNFT(
   if (!nft) {
     nft = new NFT(nftId);
     nft.contract = contract;
-    nft.tokenId = tokenId;
+    nft.tokenId = BigInt.fromString(tokenId).toI32();
 
     // load ERC721 for data points
-    let ERC721Contract = ERC721.bind(Address.fromString(contract));
-    let tryOwner = ERC721Contract.try_ownerOf(
-      BigInt.fromI32(parseInt(tokenId))
+    let nftContract = ERC721Contract.bind(Address.fromString(contract));
+    let tryOwner = nftContract.try_ownerOf(
+      BigInt.fromString(tokenId)
     );
     nft.owner = tryOwner.reverted ? ZERO_ADDRESS : tryOwner.value.toHexString();
 
@@ -221,17 +257,20 @@ function getOrCreateNFT(
     nft.blockNumber = blockNumber;
   }
 
-  nft.isListed = isListed
+  nft.isListed = isListed;
   nft.save();
   return nft;
 }
 
-function calculateFloorPriceUSD(listings: string[], blockNumber: BigInt): BigDecimal {
+function calculateFloorPriceUSD(
+  listings: string[],
+  blockNumber: BigInt
+): BigDecimal {
   let floorPriceUSD = BIGDECIMAL_ZERO;
   for (let i = 0; listings.length; i++) {
-    let _listing = Listing.load(listings[i]);
+    let _listing = Listing.load(listings[i])!;
     // update price
-    let token = Token.load(_listing.token);
+    let token = Token.load(_listing.token)!;
     let assetPrice = getAssetPrice(token, blockNumber);
     _listing.amountUSD = _listing.amount
       .toBigDecimal()
