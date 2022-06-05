@@ -94,6 +94,14 @@ or
 
 https://thegraph.com/hosted-service/subgraph/dmelotik/avax-nft-subgraph?version=current
 
+## What we learned
+
+Starting earlier would allow us to investigate issues more. We got carried away at talks the day before and didn't get started until the night.
+
+## Next steps
+
+We would like to investigate why the contracts are not easily available for the other avalanche NFT marketplaces.
+
 ## Team
 
 Dylan Melotik (discord: dmelotik#1530)
