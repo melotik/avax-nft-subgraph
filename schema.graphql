@@ -1,5 +1,36 @@
 # AVAX NFT Marketplace Aggregator
 
+type ERC721 @entity {
+    " {smart contract address} "
+    id: ID!
+
+    " symbol for the ERC721 token "
+    symbol: String!
+
+    " name of the ERC721 token "
+    name: String!
+
+    " total supply of NFTs "
+    totalSupply: BigInt!
+
+    " Unique owners of the NFT "
+    uniqueOwners: BigInt!
+
+    " current floor price of NFT "
+    floorPriceUSD: BigDecimal!
+
+    " volume traded in USD "
+    volumeUSD: BigDecimal!
+
+    " the block number this ERC721 was deployed at "
+    blockNumber: BigInt!
+
+    ### Events ###
+
+    " all transfer events of any NFT in this contract "
+    transfers: [Transfer!]! @derivedFrom(field: "contract")
+}
+
 type NFT @entity {
     " { ERC721 Address - tokenId } "
     id: ID!
@@ -22,16 +53,54 @@ type NFT @entity {
     " last sale price of this NFT "
     lastSalePriceUSD: BigDecimal
 
+    " the block number this NFT was Minted at "
+    blockNumber: BigInt!
 
     ### Events ###
 
-    transfers
+    " all transfer events of this NFT "
+    transfers: [Transfer!]! @derivedFrom(field: "nftId")
 }
 
-# TODO: make an ERC721 level entity
-
 type Transfer @entity {
+    " { transaction hash }-{ logIndex } "
+    id: ID!
 
+    " transaction hash of this transfer event "
+    hash: String!
+
+    " event log index of this transfer "
+    logIndex: Int!
+
+    " erc721 contract this transfer belongs to "
+    contract: ERC721!
+
+    " the receiving address of this transfer "
+    to: String!
+
+    " the sending address of this transfer "
+    from: String!
+
+    " token being traded for the NFT "
+    token: Token!
+
+    " amount of tokens traded for the NFT in native amount "
+    amount: BigInt!
+
+    " amouunt of tokens traded for the NFT in USD "
+    amountUSD: BigDecimal!
+
+    " the tokenId of the NFT being transferred "
+    tokenId: Int!
+
+    " the id of the NFT per our schema "
+    nftId: NFT!
+
+    " block number of the transfer "
+    blockNumber: BigInt!
+
+    " timestamp of the transfer "
+    timestamp: BigInt!
 }
 
 type Token @entity {
@@ -47,6 +116,42 @@ type Token @entity {
     " decimals of the token "
     decimals: Int!
 
-    " price of the token "
+    " price of the token in USD"
     price: BigDecimal!
+
+    " last block number update "
+    blockNumber: BigInt!
+}
+
+####################
+### Helper Types ###
+####################
+
+type Listing @entity {
+    " sale index of the listing "
+    id: ID!
+
+    " is the token currently listed "
+    isListed: Boolean!
+
+    " seller of the NFT "
+    seller: String!
+
+    " contract of NFT listed "
+    ERC721: ERC721!
+
+    " NFT identifier of the NFT listed (ie, contract + tokenId) "
+    nftId: NFT!
+
+    " token being listed for "
+    token: Token!
+
+    " amount of the token being listed for "
+    amount: BigInt!
+
+    " block number of the listing "
+    blockNumber: BigInt!
+
+    " timestamp of the listing "
+    timestamp: BigInt!
 }
