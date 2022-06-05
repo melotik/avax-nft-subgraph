@@ -1,42 +1,52 @@
-# ava labs subgraph bounty
+# Ava Labs Subgraph Bounty
 
-## marketplaces
+## Marketplace(s)
 
-- [NFTrade](https://nftrade.com/marketplace)
-  - no public repos
-- [Kalao](https://marketplace.kalao.io/)
-  - Private repos
-- [NFTKey](https://nftkey.app/avax)
-  - no public repos
-- [YetiSwap](https://www.yetiswap.app/)
-  - https://snowtrace.io/address/0x14390f57ccfdb45f969381e7e107acf062d3a592
-- ## [Joepegs](https://joepegs.com/home)
+This was designed to be an aggregated subgraph accross multiple exchanges; however there were 2 issues for me. 
 
-## design
+1) 3 of the 5 top NFT exchanges on Avalance do not have a public github with their contracts, nor could I find their deployed contracts.
+   - If I dug around in source code enough I may be able to locate, but that didn't seem like the best use of my time.
+2) I was short on time and wanted to at least complete one of the exchanges. And that is the YetiSwap NFT marketplace: https://snowtrace.io/address/0x14390f57ccfdb45f969381e7e107acf062d3a592
 
-focuses on the following:
+## Design
 
-- Individual account details
-- nft data and historic transactions (ie: current floor, total transactions, etc.)
+The focuses on the schema are as follows:
 
-## YetiSwap
+- tracking every NFT that goes through this exchange (listed, sold, unlisted, etc.)
+- Tracking volume, price, floorPrice, blockNumbers, activity, active listings
 
-### Schema
+These metrics allow the user to access data that could tell them all about an NFT collection, you can see historical listings, and sales while see the latest price updates.
 
-## file structure
+Since this was supposed to be aggregated across multiple exchanges I tried to make the schema as generic as possible. Each exchange should fit since I didn't use any exchange-level parameters for identifiers on the main entities. You can find a helper entity section. This allows more flexibility when adding new exchanges.
 
-## how to deploy - todo
 
+## File Structure
+
+Abis for the contract calls/events we need to track can be found under `./abis`
+
+`package.json` contains a number of run scripts that are useful for deploying (see the how to section)
+
+`./src` contains the `mapping.ts` and `constants.ts` which are self explanatory
+
+`subgraph.yaml` is the manifest that describes what event we want to watch from the exchange contract
+
+`schema.graphql` defines the schema we will follow that can be queried in production (see sample queries)
+
+## How to Deploy
+
+```bash
+$ yarn
+$ yarn run codegen
+$ yarn run build
+$ yarn run deploy # Note: add your github name to the deploy script
 ```
-yarn
-yarn run codegen
-yarn run build
-yarn run deploy
-```
 
-### how to add more markets
 
-### about me
 
-Author: Dylan Melotik  
-Email: dylanmelotik@gmail.com
+### Team
+
+Dylan Melotik (discord: dmelotik#1530)
+
+Chris Steege (discord: steegecs#2390)
+
+Slipper Fish (discord: slipperyfish#9458)

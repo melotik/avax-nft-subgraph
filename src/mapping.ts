@@ -41,7 +41,7 @@ export function handleTokenOnSale(event: TokenOnSale): void {
   listing.timestamp = event.block.timestamp;
 
   // update asset price
-  let token = Token.load(listing.token)!;
+  let token = Token.load(event.params.saleToken.toHexString())!;
   let assetPrice = getAssetPrice(token, event.block.number);
   listing.amountUSD = listing.amount
     .toBigDecimal()
