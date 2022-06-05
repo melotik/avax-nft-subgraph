@@ -7,6 +7,7 @@ import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+export const AVAX_ADDRESS = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"; // this is WAVAX
 export const AVAX_NAME = "Avalanche";
 export const AVAX_SYMBOL = "AVAX";
 export const AVAX_DECIMALS = 18;

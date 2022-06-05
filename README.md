@@ -41,9 +41,36 @@ $ yarn run build
 $ yarn run deploy # Note: add your github name to the deploy script
 ```
 
+## Sample Queries
 
+Get NFT collection pricing info and current listings
+```graphql
+query MyQuery {
+  erc721S {
+    id
+    name
+    symbol
+    floorPriceUSD
+    volumeUSD
+    listings(where: {isListed: true}, orderBy: amountUSD    , orderDirection: desc) {
+      id
+      nftId {
+        owner
+        tokenId
+        contract
+      }
+      amount
+    }
+  }
+}
+```
 
-### Team
+Get NFT collection historical activity:
+```graphql
+
+```
+
+## Team
 
 Dylan Melotik (discord: dmelotik#1530)
 
