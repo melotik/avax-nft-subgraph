@@ -67,8 +67,32 @@ query MyQuery {
 
 Get NFT collection historical activity:
 ```graphql
-
+query MyQuery {
+  erc721S {
+    id
+    name
+    transfers(orderDirection: asc, orderBy: timestamp) {
+      id
+      to
+      from
+      tokenId
+      token {
+        name
+        id
+        priceUSD
+      }
+      amount
+      amountUSD
+    }
+  }
+}
 ```
+
+query endpoints: https://thegraph.com/hosted-service/subgraph/dmelotik/avax-nft-subgraph?version=pending
+
+or
+
+https://thegraph.com/hosted-service/subgraph/dmelotik/avax-nft-subgraph?version=current
 
 ## Team
 
