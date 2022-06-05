@@ -35,6 +35,14 @@ type ERC721 @entity {
 
   " all transfer events of any NFT in this contract "
   transfers: [Transfer!]! @derivedFrom(field: "contract")
+
+  ### Helpers ###
+
+  " list of all NFTs in this contract seen on exchanges "
+  _nfts: [String!]!
+
+  " list of all listings "
+  _listings: [String!]!
 }
 
 type NFT @entity {
@@ -60,9 +68,9 @@ type NFT @entity {
   lastSalePriceUSD: BigDecimal
 
   " number of transfers of this NFT "
-  transferCount: BigInt!
+  transferCount: Int!
 
-  " the block number this NFT was Minted at "
+  " the block number this NFT first seen on exchange "
   blockNumber: BigInt!
 
   ### Events ###
@@ -113,7 +121,7 @@ type Transfer @entity {
 }
 
 type Token @entity {
-  " {Address of the token} "
+  " { Address of the token } "
   id: ID!
 
   " name of the token "
@@ -138,7 +146,7 @@ type Token @entity {
 
 # YetiSwap-specific
 type Listing @entity {
-  " sale index of the listing "
+  " { sale index of the listing } "
   id: ID!
 
   " is the token currently listed "
@@ -150,14 +158,20 @@ type Listing @entity {
   " contract of NFT listed "
   contract: ERC721!
 
+  " tokenId of the NFT listed "
+  tokenId: Int!
+
   " NFT identifier of the NFT listed (ie, contract + tokenId) "
   nftId: NFT!
 
   " token being listed for "
   token: Token!
 
-  " amount of the token being listed for "
+  " amount the NFT costs in token denomination "
   amount: BigInt!
+
+  " amount the NFT costs in USD "
+  amountUSD: BigDecimal!
 
   " block number of the listing "
   blockNumber: BigInt!
